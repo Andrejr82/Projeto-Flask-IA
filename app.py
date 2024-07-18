@@ -4,8 +4,6 @@ import spacy
 import logging
 
 # Função para baixar e carregar o modelo do SpaCy
-
-
 def load_spacy_model():
     try:
         nlp = spacy.load('pt_core_news_sm')
@@ -14,7 +12,6 @@ def load_spacy_model():
         download('pt_core_news_sm')
         nlp = spacy.load('pt_core_news_sm')
     return nlp
-
 
 # Inicialização do SpaCy
 nlp = load_spacy_model()
@@ -31,7 +28,6 @@ connection_string = (
     'PWD=cacula123'
 )
 
-
 def query_db(query, params=None):
     try:
         conn = pyodbc.connect(connection_string)
@@ -43,7 +39,6 @@ def query_db(query, params=None):
     except Exception as e:
         logging.error(f"Database query failed: {e}")
         return []
-
 
 # Mapeamento de palavras-chave para colunas da tabela
 keywords_to_columns = {
@@ -62,8 +57,6 @@ keywords_to_columns = {
 }
 
 # Função para identificar a intenção e extrair termos de pesquisa
-
-
 def parse_question(question):
     doc = nlp(question.lower())
     column = None
@@ -77,8 +70,6 @@ def parse_question(question):
     return column, ' '.join(search_term)
 
 # Rota para processar perguntas
-
-
 @app.route('/ask', methods=['POST'])
 def ask():
     user_question = request.json.get('question')
@@ -140,8 +131,7 @@ def ask():
 
     return jsonify(response)
 
-
 # Ponto de entrada para execução do aplicativo
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    app.run(debug=True, host='192.168.0.104')
+    app.run(debug=True, host='0.0.0.0', port=5000)
