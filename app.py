@@ -2,16 +2,22 @@ from flask import Flask, request, jsonify
 import pyodbc
 import spacy
 import logging
+from dotenv import load_dotenv
+
+# Carregar variáveis de ambiente do arquivo .env
+load_dotenv()
 
 # Função para baixar e carregar o modelo do SpaCy
+
+
 def load_spacy_model():
     try:
-        nlp = spacy.load('pt_core_news_sm')
+        return spacy.load('pt_core_news_sm')
     except OSError:
         from spacy.cli import download
         download('pt_core_news_sm')
-        nlp = spacy.load('pt_core_news_sm')
-    return nlp
+        return spacy.load('pt_core_news_sm')
+
 
 # Inicialização do SpaCy
 nlp = load_spacy_model()
@@ -28,6 +34,7 @@ connection_string = (
     'PWD=cacula123'
 )
 
+
 def query_db(query, params=None):
     try:
         conn = pyodbc.connect(connection_string)
@@ -39,6 +46,7 @@ def query_db(query, params=None):
     except Exception as e:
         logging.error(f"Database query failed: {e}")
         return []
+
 
 # Mapeamento de palavras-chave para colunas da tabela
 keywords_to_columns = {
@@ -57,23 +65,47 @@ keywords_to_columns = {
 }
 
 # Função para identificar a intenção e extrair termos de pesquisa
+
+
 def parse_question(question):
     doc = nlp(question.lower())
     column = None
     search_term = []
+
     for token in doc:
         lemma = token.lemma_
         if lemma in keywords_to_columns:
             column = keywords_to_columns[lemma]
         elif not token.is_stop and not token.is_punct:
             search_term.append(token.text)
+
     return column, ' '.join(search_term)
 
+# Função para formatar a resposta
+
+
+def format_response(result):
+    return {
+        'CÓDIGO': result[0][0],
+        'SUBSTITUTOS': result[0][1],
+        'NOME': result[0][2],
+        'FABRICANTE': result[0][3],
+        'EMBALAGEM': result[0][4],
+        'PREÇO 38%': result[0][5],
+        'COMPRADOR': result[0][6],
+        'ECOM': result[0][7],
+        'ARRED_MULT': result[0][8],
+        'SEGMENTO': result[0][9],
+        'CATEGORIA': result[0][10],
+        'GRUPO': result[0][11]
+    }
+
 # Rota para processar perguntas
+
+
 @app.route('/ask', methods=['POST'])
 def ask():
     user_question = request.json.get('question')
-
     column, query = parse_question(user_question)
 
     logging.info(f"User question: {user_question}")
@@ -107,31 +139,15 @@ def ask():
     logging.info(f"Query result: {result}")
 
     if result:
-        if column:
-            response = {column: result[0][list(
-                keywords_to_columns.values()).index(column)]}
-        else:
-            response = {
-                'CÓDIGO': result[0][0],
-                'SUBSTITUTOS': result[0][1],
-                'NOME': result[0][2],
-                'FABRICANTE': result[0][3],
-                'EMBALAGEM': result[0][4],
-                'PREÇO 38%': result[0][5],
-                'COMPRADOR': result[0][6],
-                'ECOM': result[0][7],
-                'ARRED_MULT': result[0][8],
-                'SEGMENTO': result[0][9],
-                'CATEGORIA': result[0][10],
-                'GRUPO': result[0][11]
-            }
+        response = format_response(result)
     else:
         response = {
             'answer': 'Desculpe, não encontrei informações para sua pergunta.'}
 
     return jsonify(response)
 
+
 # Ponto de entrada para execução do aplicativo
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='192.168.0.109', port=5000)
