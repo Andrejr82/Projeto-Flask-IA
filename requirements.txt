@@ -133,8 +133,6 @@ pure-eval==0.2.2
 PyAutoGUI==0.9.53
 pycodestyle==2.10.0
 pycparser==2.21
-
-
 pyflakes==3.0.1
 PyGetWindow==0.0.9
 Pygments==2.13.0
@@ -196,7 +194,6 @@ transformers==4.44.2
 trio==0.22.0
 trio-websocket==0.10.2
 typer==0.4.2
-
 urllib3==1.26.15
 wasabi==0.10.1
 wcwidth==0.2.5
