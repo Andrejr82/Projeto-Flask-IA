@@ -6,7 +6,7 @@ gunicorn==20.0.4  # Gerenciador de processos para rodar no Railway
 Werkzeug==3.0.3
 WTForms==3.1.2
 marshmallow==3.22.0
-spacy==3.7.8
+spacy>=3.7,<4.0
 pt-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/pt_core_news_sm-3.7.0/pt_core_news_sm-3.7.0-py3-none-any.whl#sha256=a3a8eed42c600af17c70ed3c8720ffe2879b5353055e66fe0c998306329052fd
 python-dotenv==1.0.1
 SQLAlchemy==2.0.31
