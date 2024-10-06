@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-import pyodbc
+from flask_sqlalchemy import SQLAlchemy
 import spacy
 import logging
 from dotenv import load_dotenv
@@ -23,41 +23,46 @@ nlp = load_spacy_model()
 # Configuração do Flask
 app = Flask(__name__)
 
-# Configuração da Conexão com o Banco de Dados
-connection_string = (
-    f"DRIVER={{ODBC Driver 17 for SQL Server}};"
-    f"SERVER={os.getenv('DB_SERVER')};"
-    f"DATABASE={os.getenv('DB_NAME')};"
-    f"UID={os.getenv('DB_USER')};"
-    f"PWD={os.getenv('DB_PASSWORD')}"
+# Configuração da Conexão com o Banco de Dados usando SQLAlchemy e Python TDS
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    f'mssql+pytds://{os.getenv("DB_USER")}:{os.getenv("DB_PASSWORD")}'
+    f'@{os.getenv("DB_SERVER")}/{os.getenv("DB_NAME")}'
 )
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-def query_db(query, params=None):
-    try:
-        conn = pyodbc.connect(connection_string)
-        cursor = conn.cursor()
-        cursor.execute(query, params if params else ())
-        result = cursor.fetchall()
-        conn.close()
-        return result
-    except Exception as e:
-        logging.error(f"Database query failed: {e}")
-        return []
+# Inicialização do SQLAlchemy
+db = SQLAlchemy(app)
+
+# Modelo para a tabela admat
+class Admat(db.Model):
+    __tablename__ = 'admat'
+    codigo = db.Column('CÓDIGO', db.Integer, primary_key=True)
+    substitutos = db.Column('SUBSTITUTOS', db.String(255))
+    nome = db.Column('NOME', db.String(255))
+    fabricante = db.Column('FABRICANTE', db.String(255))
+    embalagem = db.Column('EMBALAGEM', db.String(255))
+    preco_38 = db.Column('PREÇO 38%', db.String(255))
+    comprador = db.Column('COMPRADOR', db.String(255))
+    ecom = db.Column('ECOM', db.String(255))
+    arred_mult = db.Column('ARRED_MULT', db.String(255))
+    segmento = db.Column('SEGMENTO', db.String(255))
+    categoria = db.Column('CATEGORIA', db.String(255))
+    grupo = db.Column('GRUPO', db.String(255))
 
 # Mapeamento de palavras-chave para colunas da tabela
 keywords_to_columns = {
-    'código': 'CÓDIGO',
-    'substitutos': 'SUBSTITUTOS',
-    'nome': 'NOME',
-    'fabricante': 'FABRICANTE',
-    'embalagem': 'EMBALAGEM',
-    'preço': 'PREÇO 38%',
-    'comprador': 'COMPRADOR',
-    'ecom': 'ECOM',
-    'arred_mult': 'ARRED_MULT',
-    'segmento': 'SEGMENTO',
-    'categoria': 'CATEGORIA',
-    'grupo': 'GRUPO'
+    'código': 'codigo',
+    'substitutos': 'substitutos',
+    'nome': 'nome',
+    'fabricante': 'fabricante',
+    'embalagem': 'embalagem',
+    'preço': 'preco_38',
+    'comprador': 'comprador',
+    'ecom': 'ecom',
+    'arred_mult': 'arred_mult',
+    'segmento': 'segmento',
+    'categoria': 'categoria',
+    'grupo': 'grupo'
 }
 
 # Função para identificar a intenção e extrair termos de pesquisa
@@ -78,18 +83,18 @@ def parse_question(question):
 # Função para formatar a resposta
 def format_response(result):
     return {
-        'CÓDIGO': result[0][0],
-        'SUBSTITUTOS': result[0][1],
-        'NOME': result[0][2],
-        'FABRICANTE': result[0][3],
-        'EMBALAGEM': result[0][4],
-        'PREÇO 38%': result[0][5],
-        'COMPRADOR': result[0][6],
-        'ECOM': result[0][7],
-        'ARRED_MULT': result[0][8],
-        'SEGMENTO': result[0][9],
-        'CATEGORIA': result[0][10],
-        'GRUPO': result[0][11]
+        'CÓDIGO': result.codigo,
+        'SUBSTITUTOS': result.substitutos,
+        'NOME': result.nome,
+        'FABRICANTE': result.fabricante,
+        'EMBALAGEM': result.embalagem,
+        'PREÇO 38%': result.preco_38,
+        'COMPRADOR': result.comprador,
+        'ECOM': result.ecom,
+        'ARRED_MULT': result.arred_mult,
+        'SEGMENTO': result.segmento,
+        'CATEGORIA': result.categoria,
+        'GRUPO': result.grupo
     }
 
 # Rota para processar perguntas
@@ -103,33 +108,28 @@ def ask():
     logging.info(f"Search term: {query}")
 
     if query:
-        sql_query = """
-        SELECT CÓDIGO, SUBSTITUTOS, NOME, FABRICANTE, EMBALAGEM, [PREÇO 38%],
-            COMPRADOR, ECOM, ARRED_MULT, SEGMENTO, CATEGORIA, GRUPO
-        FROM admat
-        WHERE
-            CÓDIGO LIKE ? OR
-            SUBSTITUTOS LIKE ? OR
-            NOME LIKE ? OR
-            FABRICANTE LIKE ? OR
-            EMBALAGEM LIKE ? OR
-            [PREÇO 38%] LIKE ? OR
-            COMPRADOR LIKE ? OR
-            ECOM LIKE ? OR
-            ARRED_MULT LIKE ? OR
-            SEGMENTO LIKE ? OR
-            CATEGORIA LIKE ? OR
-            GRUPO LIKE ?
-        """
-        result = query_db(sql_query, [f'%{query}%'] * 12)
+        # Consultar a tabela Admat usando SQLAlchemy
+        result = Admat.query.filter(
+            (Admat.codigo.like(f'%{query}%')) |
+            (Admat.substitutos.like(f'%{query}%')) |
+            (Admat.nome.like(f'%{query}%')) |
+            (Admat.fabricante.like(f'%{query}%')) |
+            (Admat.embalagem.like(f'%{query}%')) |
+            (Admat.preco_38.like(f'%{query}%')) |
+            (Admat.comprador.like(f'%{query}%')) |
+            (Admat.ecom.like(f'%{query}%')) |
+            (Admat.arred_mult.like(f'%{query}%')) |
+            (Admat.segmento.like(f'%{query}%')) |
+            (Admat.categoria.like(f'%{query}%')) |
+            (Admat.grupo.like(f'%{query}%'))
+        ).all()
     else:
         result = []
 
-    logging.info(f"SQL query: {sql_query}")
     logging.info(f"Query result: {result}")
 
     if result:
-        response = format_response(result)
+        response = format_response(result[0])
     else:
         response = {
             'answer': 'Desculpe, não encontrei informações para sua pergunta.'}
