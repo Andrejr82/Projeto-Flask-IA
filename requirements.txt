@@ -3,7 +3,7 @@ Flask-WTF==1.2.1
 Flask-Caching==2.3.0
 Flask-SQLAlchemy==3.1.1
 gunicorn==20.1.0  # Gerenciador de processos para rodar no Railway
-Werkzeug==2.3.7
+Werkzeug>=3.0.0  # Remover a versão específica para permitir instalação compatível
 WTForms==3.1.2
 marshmallow==3.22.0
 spacy>=3.5,<4.0
@@ -29,5 +29,3 @@ numpy==1.26.4
 packaging==21.3
 tqdm==4.66.4
 pandas==1.5.0
-SQLAlchemy==2.0.31
-sqlalchemy-tds
