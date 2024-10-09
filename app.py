@@ -26,12 +26,13 @@ nlp = load_spacy_model()
 # Configuração do Flask
 app = Flask(__name__)
 
-# Configuração da Conexão com o Banco de Dados usando SQLAlchemy e Python TDS
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    f'mssql+pytds://{os.getenv("DB_USER")}:{os.getenv("DB_PASSWORD")}'
-    f'@{os.getenv("DB_SERVER")}/{os.getenv("DB_NAME")}'
+    f'mssql+pyodbc://{os.getenv("DB_USER")}:{os.getenv("DB_PASSWORD")}'
+    f'@{os.getenv("DB_SERVER")}/{os.getenv("DB_DATABASE")}'
+    '?driver=ODBC+Driver+17+for+SQL+Server'  # ou o driver que você estiver usando
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 # Inicialização do SQLAlchemy
 db = SQLAlchemy(app)
