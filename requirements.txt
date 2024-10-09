@@ -9,7 +9,6 @@ marshmallow==3.22.0
 spacy>=3.7,<4.0
 pt-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/pt_core_news_sm-3.7.0/pt_core_news_sm-3.7.0-py3-none-any.whl#sha256=a3a8eed42c600af17c70ed3c8720ffe2879b5353055e66fe0c998306329052fd
 python-dotenv==1.0.1
-
 pyodbc==5.1.0
 psycopg2-binary==2.9.8  # Para uso com PostgreSQL se necessário
 requests==2.28.2

@@ -9,6 +9,8 @@ import os
 load_dotenv()
 
 # Função para baixar e carregar o modelo do SpaCy
+
+
 def load_spacy_model():
     try:
         return spacy.load('pt_core_news_sm')
@@ -16,6 +18,7 @@ def load_spacy_model():
         from spacy.cli import download
         download('pt_core_news_sm')
         return spacy.load('pt_core_news_sm')
+
 
 # Inicialização do SpaCy
 nlp = load_spacy_model()
@@ -34,6 +37,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # Modelo para a tabela admat
+
+
 class Admat(db.Model):
     __tablename__ = 'admat'
     codigo = db.Column('CÓDIGO', db.Integer, primary_key=True)
@@ -48,6 +53,7 @@ class Admat(db.Model):
     segmento = db.Column('SEGMENTO', db.String(255))
     categoria = db.Column('CATEGORIA', db.String(255))
     grupo = db.Column('GRUPO', db.String(255))
+
 
 # Mapeamento de palavras-chave para colunas da tabela
 keywords_to_columns = {
@@ -66,6 +72,8 @@ keywords_to_columns = {
 }
 
 # Função para identificar a intenção e extrair termos de pesquisa
+
+
 def parse_question(question):
     doc = nlp(question.lower())
     column = None
@@ -81,6 +89,8 @@ def parse_question(question):
     return column, ' '.join(search_term)
 
 # Função para formatar a resposta
+
+
 def format_response(result):
     return {
         'CÓDIGO': result.codigo,
@@ -98,6 +108,8 @@ def format_response(result):
     }
 
 # Rota para processar perguntas
+
+
 @app.route('/ask', methods=['POST'])
 def ask():
     user_question = request.json.get('question')
@@ -135,6 +147,7 @@ def ask():
             'answer': 'Desculpe, não encontrei informações para sua pergunta.'}
 
     return jsonify(response)
+
 
 # Ponto de entrada para execução do aplicativo
 if __name__ == '__main__':
