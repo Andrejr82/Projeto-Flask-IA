@@ -4,6 +4,7 @@ __pycache__/
 venv/
 myenv/
 .env
+*.pyo
 
 # Ignorar arquivos específicos de IDEs
 .vscode/
