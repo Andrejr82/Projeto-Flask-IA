@@ -29,7 +29,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     f'mssql+pyodbc://{os.getenv("DB_USER")}:{os.getenv("DB_PASSWORD")}'
     f'@{os.getenv("DB_SERVER")}/{os.getenv("DB_DATABASE")}'
-    '?driver=ODBC+Driver+17+for+SQL+Server'  # ou o driver que você estiver usando
+    '?driver=ODBC+Driver+17+for+SQL+Server'  
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
