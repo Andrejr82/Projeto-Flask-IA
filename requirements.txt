@@ -87,7 +87,6 @@ prometheus_client==0.21.0
 prompt_toolkit==3.0.48
 psutil==6.0.0
 psycopg2-binary==2.9.8
-pt-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/pt_core_news_sm-3.7.0/pt_core_news_sm-3.7.0-py3-none-any.whl#sha256=a3a8eed42c600af17c70ed3c8720ffe2879b5353055e66fe0c998306329052fd
 pure_eval==0.2.3
 pycparser==2.22
 pydantic==2.9.2
@@ -115,7 +114,6 @@ six==1.16.0
 smart-open==7.0.5
 sniffio==1.3.1
 soupsieve==2.6
-spacy==3.7.5
 spacy-legacy==3.0.12
 spacy-loggers==1.0.5
 SQLAlchemy==2.0.31
