@@ -1,0 +1,22 @@
+# Ignorar ambientes virtuais
+venv/
+myenv/
+
+# Ignorar arquivos de cache do Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Variáveis de ambiente e credenciais sensíveis
+.env
+
+# Configurações específicas da IDE e editor
+.vscode/
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+
+# Imagens de cache do Docker
+docker-compose.debug.yml
+docker-compose.override.yml
