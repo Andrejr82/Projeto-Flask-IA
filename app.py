@@ -33,7 +33,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
 # Inicialização do SQLAlchemy
 db = SQLAlchemy(app)
 
@@ -92,21 +91,24 @@ def parse_question(question):
 # Função para formatar a resposta
 
 
-def format_response(result):
-    return {
-        'CÓDIGO': result.codigo,
-        'SUBSTITUTOS': result.substitutos,
-        'NOME': result.nome,
-        'FABRICANTE': result.fabricante,
-        'EMBALAGEM': result.embalagem,
-        'PREÇO 38%': result.preco_38,
-        'COMPRADOR': result.comprador,
-        'ECOM': result.ecom,
-        'ARRED_MULT': result.arred_mult,
-        'SEGMENTO': result.segmento,
-        'CATEGORIA': result.categoria,
-        'GRUPO': result.grupo
-    }
+def format_response(results):
+    response = []
+    for result in results:
+        response.append({
+            'CÓDIGO': result.codigo,
+            'SUBSTITUTOS': result.substitutos,
+            'NOME': result.nome,
+            'FABRICANTE': result.fabricante,
+            'EMBALAGEM': result.embalagem,
+            'PREÇO 38%': result.preco_38,
+            'COMPRADOR': result.comprador,
+            'ECOM': result.ecom,
+            'ARRED_MULT': result.arred_mult,
+            'SEGMENTO': result.segmento,
+            'CATEGORIA': result.categoria,
+            'GRUPO': result.grupo
+        })
+    return response
 
 # Rota para processar perguntas
 
@@ -122,7 +124,7 @@ def ask():
 
     if query:
         # Consultar a tabela Admat usando SQLAlchemy
-        result = Admat.query.filter(
+        results = Admat.query.filter(
             (Admat.codigo.like(f'%{query}%')) |
             (Admat.substitutos.like(f'%{query}%')) |
             (Admat.nome.like(f'%{query}%')) |
@@ -137,15 +139,16 @@ def ask():
             (Admat.grupo.like(f'%{query}%'))
         ).all()
     else:
-        result = []
+        results = []
 
-    logging.info(f"Query result: {result}")
+    logging.info(f"Query result: {results}")
 
-    if result:
-        response = format_response(result[0])
+    if results:
+        response = format_response(results)
     else:
         response = {
-            'answer': 'Desculpe, não encontrei informações para sua pergunta.'}
+            'answer': 'Desculpe, não encontrei informações para sua pergunta.'
+        }
 
     return jsonify(response)
 
