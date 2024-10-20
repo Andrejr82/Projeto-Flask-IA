@@ -1,3 +1,4 @@
+version: '3.8'
 
 services:
   flask-app:
@@ -6,17 +7,18 @@ services:
       - "5000:5000"
     environment:
       - DB_SERVER=${DB_SERVER}
-      - DB_NAME=${DB_NAME}
+      - DB_DATABASE=${DB_DATABASE}  # Alterado de DB_NAME para DB_DATABASE
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
     depends_on:
       - sqlserver
     volumes:
       - .:/app
+
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      SA_PASSWORD: "YourStrong!Passw0rd"
+      SA_PASSWORD: "cacula123"  # Mantenha uma senha forte aqui
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"

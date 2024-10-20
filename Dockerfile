@@ -1,45 +1,25 @@
-
-# Usar uma imagem oficial do Python
+# Use uma imagem base do Python
 FROM python:3.10-slim
 
-# Define o diretório de trabalho dentro do container
+# Atualiza o sistema e instala dependências
+RUN apt-get update && \
+    apt-get install -y unixodbc-dev curl gnupg2 && \
+    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y msodbcsql17 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Define o diretório de trabalho
 WORKDIR /app
 
-# Copiar o arquivo requirements.txt para o container
+# Copia os arquivos de requisitos e instala as dependências
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Instalar as dependências listadas no requirements.txt
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
-# Copiar o restante do código da aplicação para o container
+# Copia o código da aplicação
 COPY . .
 
-# Expõe a porta 5000 para o Flask
-EXPOSE 5000
-
-# Comando para rodar a aplicação Flask
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
-=======
-# Usar uma imagem oficial do Python
-FROM python:3.10-slim
-
-# Define o diretório de trabalho dentro do container
-WORKDIR /app
-
-# Copiar o arquivo requirements.txt para o container
-COPY requirements.txt .
-
-# Instalar as dependências listadas no requirements.txt
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
-# Copiar o restante do código da aplicação para o container
-COPY . .
-
-# Expõe a porta 5000 para o Flask
-EXPOSE 5000
-
-# Comando para rodar a aplicação Flask
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
-
+# Comando para executar a aplicação
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000"]
