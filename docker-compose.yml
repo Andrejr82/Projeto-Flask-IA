@@ -1,24 +1,47 @@
-version: '3.8'
 
 services:
-  flask-app:
-    build: .
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flask_app
     ports:
-      - "5000:5000"
+      - "5000:5000"  # Mapeamento da porta do contêiner para o host
     environment:
+      # Variáveis de ambiente que podem ser configuradas no .env ou diretamente aqui
       - DB_SERVER=${DB_SERVER}
-      - DB_DATABASE=${DB_DATABASE}  # Alterado de DB_NAME para DB_DATABASE
+      - DB_DATABASE=${DB_DATABASE}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-    depends_on:
-      - sqlserver
     volumes:
-      - .:/app
+      - .:/app  # Mapeamento de volume para facilitar o desenvolvimento
+    depends_on:
+      - db  # Define a dependência para o serviço de banco de dados
+    restart: unless-stopped  # Reinício automático em caso de falha
 
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    environment:
-      SA_PASSWORD: "cacula123"  # Mantenha uma senha forte aqui
-      ACCEPT_EULA: "Y"
+  nginx:
+    image: nginx:latest
+    container_name: nginx
     ports:
-      - "1433:1433"
+      - "80:80"  # Expõe a porta 80 do Nginx para o host
+    volumes:
+      - ./nginx.config/nginx.conf:/etc/nginx/nginx.conf:ro  # Volume para a configuração do Nginx
+    depends_on:
+      - web
+    restart: unless-stopped
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest  # Imagem do SQL Server
+    container_name: sql_server
+    ports:
+      - "1434:1433"  # Mapeamento da porta padrão do SQL Server
+    environment:
+      SA_PASSWORD: "cacula123"  # Senha do administrador
+      ACCEPT_EULA: "Y"  # Aceitação do contrato de licença
+      MSSQL_PID: "Express"  # Versão do SQL Server
+    volumes:
+      - db_data:/var/opt/mssql  # Volume para persistir dados do banco de dados
+    restart: unless-stopped  # Reinício automático em caso de falha
+
+volumes:
+  db_data:  # Volume nomeado para armazenamento de dados do banco de dados

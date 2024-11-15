@@ -1,8 +1,7 @@
 services:
   - type: web
-    name: projeto-flask-ia  # Nome do seu serviço no Render
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app:app" # Comando para iniciar o servidor Gunicorn
-    env: python
-    plan: free # Plano gratuito do Render
-    healthCheckPath: / # Rota para verificar a saúde do aplicativo
+    name: flask-app
+    env: docker
+    plan: free
+    buildCommand: "docker-compose build"
+    startCommand: "docker-compose up"

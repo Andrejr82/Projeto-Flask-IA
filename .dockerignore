@@ -1,16 +1,6 @@
-# Ignorar arquivos e pastas do Python e ambientes virtuais
+
 __pycache__/
-*.pyc
-venv/
 myenv/
-.env
-*.pyo
-
-# Ignorar arquivos específicos de IDEs
-.vscode/
-.idea/
-
-# Ignorar arquivos grandes ou binários
-*.log
-*.sqlite3
-myenv/Lib/site-packages/tensorflow/
+venv/
+*.pyc
+.DS_Store
